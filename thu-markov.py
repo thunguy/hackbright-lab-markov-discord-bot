@@ -1,5 +1,6 @@
 """Generate Markov text from text files."""
-
+import os
+import discord
 from random import choice
 import sys
 
@@ -117,3 +118,31 @@ print(make_text(make_chains(open_and_read_file(sys.argv[1:]))))
 # random_text = make_text(chains)
 
 # print(random_text)
+
+
+filenames = sys.argv[1:]
+
+text = open_and_read_file(filenames)
+
+chains = make_chains(text)
+
+client = discord.Client()
+
+
+@client.event
+async def on_ready():
+    print(f'Successfully connected! Logged in as {client.user}.')
+
+
+@client.event
+async def on_message(message):
+
+    trigger = ["hello", "hey", "hi", "?", "random", "thing"]
+   
+    if message.author == client.user:
+        return
+
+    if any(word in message.content.lower() for word in trigger):
+        await message.channel.send(make_text(chains)[-2000:])
+
+client.run(os.environ['DISCORD_TOKEN'])
